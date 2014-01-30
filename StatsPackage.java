@@ -15,7 +15,7 @@ public class StatsPackage {
 	}
 	public static void help(){
 		String[] commands = {
-			"help", "exit", "load", "print", "clear", "mean", "median", "min", "max", "mode", "percentile", "Q1", "Q2", "Q3", "range", "sample_variance", "variance", "sample_strdev", "strdev",
+			"help", "exit", "load", "print", "list", "clear", "mean", "median", "min", "max", "mode", "percentile", "Q1", "Q2", "Q3", "range", "sample_variance", "variance", "sample_strdev", "strdev",
 			"frequency", "rel_frequency"
 			};
 		String[] desc = {
@@ -23,6 +23,7 @@ public class StatsPackage {
 			"quits the program",
 			"loads the data file",
 			"pints the data",
+			"prints the data in list form",
 			"clears the data",
 			"finds the average of the data",
 			"finds the middle value of the data",
@@ -75,8 +76,8 @@ public class StatsPackage {
 		}
 		return ans;
 	}
-	public static HashMap<Double, Integer> count(){ //counts how many times a number occurs in the dataset.
-		HashMap<Double, Integer> count = new HashMap<Double, Integer>();
+	public static TreeMap<Double, Integer> count(){ //counts how many times a number occurs in the dataset.
+		TreeMap<Double, Integer> count = new TreeMap<Double, Integer>();
 		for(int i = 0; i<DATA.size(); i++){
 			double item = DATA.get(i);
 			if(!count.containsKey(item)){
@@ -116,6 +117,10 @@ public class StatsPackage {
 				System.out.println(DATA);
 			}else{
 				System.out.println("[]");
+			}
+		}else if(c.equals("list")){
+			for(int i=0; i<DATA.size(); i++){
+				System.out.println((i+1) + ":\t" + DATA.get(i));
 			}
 		}else if(c.equals("clear")){
 			DATA.clear();
@@ -172,7 +177,7 @@ public class StatsPackage {
 			help();
 		}else if(c.equals("frequency")){
 			System.out.println("Frequency of each item: ");
-			HashMap<Double, Integer> count = count();
+			TreeMap<Double, Integer> count = count();
 			for(double key : count.keySet()){
 				//System.out.println("For " + key + "\t: " + count.get(key) );
 				System.out.format("%.3f\t\t", key);
@@ -180,7 +185,7 @@ public class StatsPackage {
 			}
 		}else if(c.equals("rel_frequency")){
 			System.out.println("Relative Frequency of each item: ");
-			HashMap<Double, Integer> count = count();
+			TreeMap<Double, Integer> count = count();
 			for(double key : count.keySet()){
 				//System.out.println("For " + key + "\t\t: " + count.get(key) + "/" + DATA.size());
 				System.out.format("%.3f\t\t", key);
@@ -188,7 +193,7 @@ public class StatsPackage {
 
 			}
 		}else if(c.equals("mode")){
-			HashMap<Double, Integer> count = count();
+			TreeMap<Double, Integer> count = count();
 			ArrayList<Double> modes = new ArrayList<Double>();
 			int max = -1;
 			for(double key : count.keySet()){ //finding the max occurce
