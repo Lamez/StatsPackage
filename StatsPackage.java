@@ -14,7 +14,10 @@ public class StatsPackage {
 		return in.nextLine().toLowerCase();
 	}
 	public static void help(){
-		String[] commands = {"help", "exit", "load", "print", "clear", "mean", "median", "min", "max", "percentile", "Q1", "Q2", "Q3", "range", "variance", "strdev"};
+		String[] commands = {
+			"help", "exit", "load", "print", "clear", "mean", "median", "min", "max", "mode", "percentile", "Q1", "Q2", "Q3", "range", "sample_variance", "variance", "sample_strdev", "strdev",
+			"frequency", "rel_frequency"
+			};
 		String[] desc = {
 			"this list",
 			"quits the program",
@@ -25,13 +28,18 @@ public class StatsPackage {
 			"finds the middle value of the data",
 			"finds the smallest value of the data",
 			"finds the largest value of the data",
+			"finds the mode of the data set",
 			"finds the given percentile",
 			"finds the 1st quartile",
 			"finds the 2nd quartile",
 			"finds the 3rd quartile",
 			"finds the range on the data",
+			"calculates the sample variance",
 			"calculates the variance on the data",
-			"calculates standard deviation"
+			"calculates the sample standard deviation",
+			"calculates standard deviation",
+			"displays the frequency of each item in the data set",
+			"displays the relative frequency of each item in the data set"
 		};
 		for(int i=0; i<commands.length; i++){
 			System.out.print(commands[i]);
@@ -67,7 +75,19 @@ public class StatsPackage {
 		}
 		return ans;
 	}
-	public static double var(){
+	public static HashMap<Double, Integer> count(){ //counts how many times a number occurs in the dataset.
+		HashMap<Double, Integer> count = new HashMap<Double, Integer>();
+		for(int i = 0; i<DATA.size(); i++){
+			double item = DATA.get(i);
+			if(!count.containsKey(item)){
+				count.put(item, 1);
+			}else{
+				count.put(item, count.get(item) + 1); //+1 to value
+			}
+		}
+		return count;
+	}
+	public static double var(boolean sample){ //variance
 		double mean = 0.0;
 		for(int i=0; i<DATA.size(); i++){
 			mean += DATA.get(i);
@@ -80,7 +100,11 @@ public class StatsPackage {
 			current = Math.pow(a, 2) + prev;
 			prev = current;
 		}
-		return current / (double)DATA.size();
+		double size = (double)DATA.size();
+		if(sample){
+			size -= 1;
+		}
+		return current / size;
 	}
 	public static void tryCommand(String c, Scanner in){
 		if(c.equals("load")){
@@ -125,14 +149,11 @@ public class StatsPackage {
 		}else if(c.equals("range")){
 			System.out.println("range: " + (DATA.get(DATA.size() - 1) - DATA.get(0)));
 		}else if(c.equals("percentile")){
-			if(!DATA.isEmpty()){
-				System.out.print("Enter Percentile as a whole number: ");
-				double p = in.nextDouble();
-				double ans = percentile(p);
-				System.out.println(p + " percentile: " + ans);
-			}else{
-				System.out.println("List is empty.");
-			}
+			System.out.print("Enter Percentile as a whole number: ");
+//			double p = (double)in.nextLine();
+			double p = in.nextDouble();
+			double ans = percentile(p);
+			System.out.println(p + " percentile: " + ans);
 		}else if(c.equals("q1")){
 			System.out.println("Q1: " + percentile(25));
 		}else if(c.equals("q2")){
@@ -140,11 +161,53 @@ public class StatsPackage {
 		}else if(c.equals("q3")){
 			System.out.println("Q3: " + percentile(75));
 		}else if(c.equals("variance")){
-			System.out.println("variance: " + var());
+			System.out.println("variance: " + var(false));
+		}else if(c.equals("sample_variance")){
+			System.out.println("sample variance: " + var(true));
 		}else if(c.equals("strdev")){
-			System.out.println("standard deviation: " + Math.sqrt(var()));
+			System.out.println("standard deviation: " + Math.sqrt(var(false)));
+		}else if(c.equals("sample_strdev")){
+			System.out.println("sample standard deviation: " + Math.sqrt(var(true)));
 		}else if(c.equals("help")){
 			help();
+		}else if(c.equals("frequency")){
+			System.out.println("Frequency of each item: ");
+			HashMap<Double, Integer> count = count();
+			for(double key : count.keySet()){
+				//System.out.println("For " + key + "\t: " + count.get(key) );
+				System.out.format("%.3f\t\t", key);
+				System.out.println(count.get(key));
+			}
+		}else if(c.equals("rel_frequency")){
+			System.out.println("Relative Frequency of each item: ");
+			HashMap<Double, Integer> count = count();
+			for(double key : count.keySet()){
+				//System.out.println("For " + key + "\t\t: " + count.get(key) + "/" + DATA.size());
+				System.out.format("%.3f\t\t", key);
+				System.out.println(count.get(key) + "/" + DATA.size());
+
+			}
+		}else if(c.equals("mode")){
+			HashMap<Double, Integer> count = count();
+			ArrayList<Double> modes = new ArrayList<Double>();
+			int max = -1;
+			for(double key : count.keySet()){ //finding the max occurce
+				int value = count.get(key);
+				if(value > max){
+					max = value;
+				}
+			}
+
+			for(final Map.Entry<Double, Integer> tuple : count.entrySet()) {
+        		if (tuple.getValue() == max){
+            		modes.add(tuple.getKey());
+        		}
+    		}
+    		System.out.println("mode: ");
+    		for(int i=0; i<modes.size(); i++){
+    			System.out.println("\t"+modes.get(i));
+    		}
+    		System.out.println("occurs " + max + " times.");
 		}
 	}
     public static void main(String[] args) {
